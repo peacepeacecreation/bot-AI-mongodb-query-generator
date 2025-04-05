@@ -37,7 +37,6 @@ async function runAgent(userInput) {
   if (name === 'get_trades') {
     const trades = await getTrades(args)
 
-    // Тепер запит GPT ще раз із трейдами
     messages.push({
       role: 'assistant',
       tool_calls: [toolCall],

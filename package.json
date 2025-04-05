@@ -15,5 +15,10 @@
     "url": "https://github.com/peacepeacecreation/bot-ai/issues"
   },
   "homepage": "https://github.com/peacepeacecreation/bot-ai#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.15.0",
+    "openai": "^4.91.1"
+  }
 }
