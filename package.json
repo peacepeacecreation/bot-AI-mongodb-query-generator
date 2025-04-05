@@ -1,0 +1,19 @@
+{
+  "name": "bot-ai-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/peacepeacecreation/bot-ai.git"
+  },
+  "author": "Martyn U",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/peacepeacecreation/bot-ai/issues"
+  },
+  "homepage": "https://github.com/peacepeacecreation/bot-ai#readme",
+  "description": ""
+}
