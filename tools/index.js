@@ -1,27 +1,22 @@
-
 const ToolGenerator = require('./ToolGenerator');
+const { generateQueryParamsFromSchema } = require('./ParamsGeneratorFromSchema');
+// Import Mongoose schema
+const tradeSchema = require('./schemas/trades');
+
 
 const toolGen = new ToolGenerator();
+// Create a params definition for trades
+const tradeParams = generateQueryParamsFromSchema(tradeSchema);
 
 module.exports = [
     toolGen.createFunctionTool(
         'get_trades',
-        'Отримати трейди з фільтрами',
-        {
-            profit: {
-                lt: { type: 'number' },
-                gt: { type: 'number' }
-            },
-            date: {
-                gte: { type: 'string', format: 'date' },
-                lte: { type: 'string', format: 'date' }
-            },
-            status: { type: 'string' }
-        }
+        'Retrieve trades with filters',
+        tradeParams,
     ),
     toolGen.createFunctionTool(
         'create_risk_rule',
-        'Створити правило ризику',
+        'Create risk rule',
         {
             condition: { type: 'string' },
             action: { type: 'string' },
@@ -30,3 +25,4 @@ module.exports = [
         }
     ),
 ];
+
