@@ -9,20 +9,25 @@ const toolGen = new ToolGenerator();
 const tradeParams = generateQueryParamsFromSchema(tradeSchema);
 
 module.exports = [
-    toolGen.createFunctionTool(
-        'get_trades',
-        'Retrieve trades with filters',
-        tradeParams,
-    ),
-    toolGen.createFunctionTool(
-        'create_risk_rule',
-        'Create risk rule',
-        {
-            condition: { type: 'string' },
-            action: { type: 'string' },
-            threshold: { type: 'number' },
-            time_period: { type: 'string' }
-        }
-    ),
+  toolGen.createFunctionTool(
+    'get_trades',
+    'Retrieve trades with filters',
+    tradeParams
+  ),
+  toolGen.createFunctionTool(
+    'count_trades',
+    'Count the number of trades matching specified filters',
+    tradeParams
+  ),
+  toolGen.createFunctionTool(
+    'create_risk_rule',
+    'Create risk rule',
+    {
+      condition: { type: 'string' },
+      action: { type: 'string' },
+      threshold: { type: 'number' },
+      time_period: { type: 'string' }
+    }
+  ),
 ];
 
