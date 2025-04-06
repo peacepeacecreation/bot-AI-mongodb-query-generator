@@ -68,7 +68,14 @@ function generateQueryParamsFromSchema(schema) {
     }
   }
 
-  return queryParams;
+  const defaultParams = {
+    sortBy: { type: 'string', description: 'Field to sort by' },
+    sortOrder: { type: 'string', enum: ['asc', 'desc'], description: 'Sort order: ascending or descending' },
+    page: { type: 'number', description: 'Page number for pagination' },
+    limit: { type: 'number', description: 'Number of items per page' },
+  }
+
+  return { ...defaultParams, ...queryParams };
 }
 
 /**
