@@ -1,68 +1,71 @@
+const tools = require('./tools');
+const { getTrades } = require('./mongo');
+const { ask, extractToolCall, extractAiMessage } = require('./aiClient');
 
-const { OpenAI } = require('openai')
-const tools = require('./tools')
-const { getTrades } = require('./mongo')
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
+/**
+ * Main agent function that handles user input and processes OpenAI's response
+ *
+ * @param {string} userInput - User prompt (question or instruction)
+ */
 async function runAgent(userInput) {
+  // Initial system and user messages
   const messages = [
     {
       role: 'system',
-      content: 'Ти — трейдинг-асистент. Працюєш з трейдами та ризик-правилами.',
+      content: 'You are a trading assistant. You work with trades and risk rules.',
     },
     {
       role: 'user',
       content: userInput,
     }
-  ]
+  ];
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4-1106-preview',
-    messages,
-    tools,
-    tool_choice: "auto"
-  })
+  console.log(tools[0].function.parameters)
+  // First GPT call
+  const response = await ask({ messages, tools });
 
-  const toolCall = response.choices[0].message.tool_calls?.[0]
+  console.log('response', response)
+
+  // Try to extract tool call from GPT response
+  const toolCall = extractToolCall(response);
 
   if (!toolCall) {
-    console.log('GPT:', response.choices[0].message.content)
-    return
+    // No tool call – return plain GPT response
+    const message = extractAiMessage(response);
+    console.log('🧠 GPT:', message);
+    return;
   }
 
-  const { name, arguments: argsRaw } = toolCall.function
-  const args = JSON.parse(argsRaw)
+  // Parse tool call arguments
+  const { name, arguments: argsRaw } = toolCall.function;
+  const args = JSON.parse(argsRaw);
 
   if (name === 'get_trades') {
-    const trades = await getTrades(args)
+    // Call backend and update conversation with tool result
+    const trades = await getTrades(args);
 
     messages.push({
       role: 'assistant',
       tool_calls: [toolCall],
-    })
+    });
 
     messages.push({
       role: 'tool',
       tool_call_id: toolCall.id,
       name: name,
       content: JSON.stringify(trades),
-    })
+    });
 
-    const followUp = await openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
-      messages,
-      tools,
-      tool_choice: "auto"
-    })
+    // Follow-up GPT call with new context
+    const followUp = await ask({ messages, tools });
+    const followTool = extractToolCall(followUp);
 
-    const followTool = followUp.choices[0].message.tool_calls?.[0]
-
-    if (followTool && followTool.function.name === "create_risk_rule") {
-      const rule = JSON.parse(followTool.function.arguments)
-      console.log('🔧 GPT хоче створити правило ризику:', rule)
+    if (followTool?.function?.name === 'create_risk_rule') {
+      const rule = JSON.parse(followTool.function.arguments);
+      console.log('🔧 GPT wants to create a risk rule:', rule);
     } else {
-      console.log('📊 GPT-аналітика:', followUp.choices[0].message.content)
+      const message = extractAiMessage(followUp);
+      console.log('📊 GPT analysis:', message);
     }
   }
 }
